@@ -40,4 +40,10 @@ if dst_head[:8] != b"\x89PNG\r\n\x1a\n" or dst_head[12:16] != b"IHDR":
     sys.exit("copied entry.png failed header check")
 if os.path.getsize(dst) != os.path.getsize(src):
     sys.exit("copied entry.png size differs from source")
+# And the dimensions: the copy must still be the gated 1024x1024 image.
+with open(dst, "rb") as f:
+    dst_head = f.read(33)
+dst_w, dst_h = struct.unpack(">II", dst_head[16:24])
+if (dst_w, dst_h) != (width, height):
+    sys.exit(f"copied entry.png is {dst_w}x{dst_h}, source was {width}x{height}")
 print(f"wrote {dst}: {width}x{height} PNG, {os.path.getsize(dst)} bytes")
